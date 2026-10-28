@@ -20,6 +20,8 @@ Inventory::~Inventory() {
 }
 
 // Add a book to the inventory (sorted by title alphabetically)
+// THIS WAS LIKE THE WORST PART LOL
+// but it works!!!!!!!!!!!
 void Inventory::addBook(Book* bookPtr) {
     if (bookPtr == nullptr) {
         std::cout << "Error: Cannot add null book pointer.\n";
@@ -47,25 +49,37 @@ void Inventory::addBook(Book* bookPtr) {
         }
         // otherwise we dig deeper
         else {
+            Node* previous = head;
             Node* to_compare = head->next;
-            title_to_compare = to_compare->data->getTitle();
-            bool at_end = false;
-
-            while (comparison < title_to_compare && at_end == false) {
-                // if still nothing, start iterating thru the whoel thing
-                if (to_compare->next != nullptr) {
-                    to_compare = to_compare->next;
-                    title_to_compare = to_compare->data->getTitle();
-                } else {
-                    // just saves it from going any further and lets me know if it just goes in the back
-                    at_end = true;
-                }
+            if (to_compare != nullptr) {
+                title_to_compare = to_compare->data->getTitle();
             }
+            bool at_end = false, compare = (comparison < title_to_compare);
+
+            if (to_compare != nullptr) {
+                while (!compare && at_end == false) {
+                    // if still nothing, start iterating thru the whoel thing
+                    if (to_compare->next != nullptr) {
+                        previous = to_compare;
+                        to_compare = to_compare->next;
+                        title_to_compare = to_compare->data->getTitle();
+                        compare = (comparison < title_to_compare);
+                    } else {
+                        // just saves it from going any further and lets me know if it just goes in the back
+                        at_end = true;
+                    }
+
+                }
+            } else {
+                at_end = true;
+                to_compare = head;
+            }
+
 
             if (at_end == false) {
                 // temp for taking a spot
-                Node* temp = to_compare->next;
-                to_compare->next = new_node;
+                Node* temp = to_compare;
+                previous->next = new_node;
                 new_node->next = temp;
             } else {
                 // no temp needed if it just goes at the end
@@ -181,7 +195,7 @@ Inventory::Node *Inventory::seek(int index) const {
     Node* current = head;
 
     for (int i = 0; i < index; i++) {
-        if (current->next == nullptr) {
+        if (current->next != nullptr) {
             current = current->next;
         } else {
             std::cout << "!!--Seek() range higher than list ammount. returning last in list--!!" << std::endl;
